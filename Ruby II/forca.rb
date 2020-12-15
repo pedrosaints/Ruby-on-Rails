@@ -1,92 +1,55 @@
-def da_boas_vindas
-  puts "Qual é o seu nome?"
-  nome = gets.strip
-  puts "\n\n\n\n\n\n"
-  puts "Começaremos o jogo para você, #{nome}"
-  nome
-end
+require_relative 'ui'
+require_relative 'rank'
 
 def escolhe_palavra_secreta
-  puts "Escolhendo palavra secreta..."
-  palavra_secreta = "programador"
-  puts "Palavra secreta com #{palavra_secreta.size} letras... Boa sorte!"
+  avisa_escolhendo_palavra_secreta
+
+  texto = File.read("dicionario.txt")
+  dicionario = texto.split "\n"
+  num_escolhido = rand(dicionario.size)
+  palavra_secreta = dicionario[num_escolhido].downcase
+
+  avisa_palavra_secreta_escolhida palavra_secreta
   palavra_secreta
 end
 
-def pede_um_chute(chutes, erros, limite_de_tentativas)
-  puts "\n"
-  puts "Tentativa #{erros + 1} de #{limite_de_tentativas}"
-  puts "Chutes até agora: #{chutes}"
-  puts "Entre com uma letra ou uma palavra"
-  chute = gets.strip
-  puts "Será que acertou? Você chutou #{chute}"
-  chute
-end
-
-def ganhou
-  puts
-  puts "             OOOOOOOOOOO               "
-  puts "         OOOOOOOOOOOOOOOOOOO           "
-  puts "      OOOOOO  OOOOOOOOO  OOOOOO        "
-  puts "    OOOOOO      OOOOO      OOOOOO      "
-  puts "  OOOOOOOO  #   OOOOO  #   OOOOOOOO    "
-  puts " OOOOOOOOOO    OOOOOOO    OOOOOOOOOO   "
-  puts "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  "
-  puts "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  "
-  puts "OOOO  OOOOOOOOOOOOOOOOOOOOOOOOO  OOOO  "
-  puts " OOOO  OOOOOOOOOOOOOOOOOOOOOOO  OOOO   "
-  puts "  OOOO   OOOOOOOOOOOOOOOOOOOO  OOOO    "
-  puts "    OOOOO   OOOOOOOOOOOOOOO   OOOO     "
-  puts "      OOOOOO   OOOOOOOOO   OOOOOO      "
-  puts "         OOOOOO         OOOOOO         "
-  puts "             OOOOOOOOOOOO              "
-  puts
-  puts "               Acertou!                "
-  puts
-end
-def errou
-  puts
-  puts "             OOOOOOOOOOO               "
-  puts "         OOOOOOOOOOOOOOOOOOO           "
-  puts "      OOOOOO  OOOOOOOOO  OOOOOO        "
-  puts "    OOOOOO      OOOOO      OOOOOO      "
-  puts "  OOOOOOOO  #   OOOOO  #   OOOOOOOO    "
-  puts " OOOOOOOOOO    OOOOOOO    OOOOOOOOOO   "
-  puts "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  "
-  puts "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  "
-  puts "OOOOOOOOOOOOO          OOOOOOOOOOOOOO  "
-  puts " OOOOOOOOO   OOOOOOOOOO   OOOOOOOOOO   "
-  puts "   OOOOOO   OOOOOOOOOOOO   OOOOOOO     "
-  puts "      OOOOOOOOOOOOOOOOOOOOOOOOO        "
-  puts "         OOOOOOOOOOOOOOOOOOO           "
-  puts "             OOOOOOOOOOOO              "
-  puts
-  puts "               Errou!                "
-  puts
-end
-
-def verifica_se_acertou(palavra_secreta, chute)
-  acertou = palavra_secreta == chute
-  if acertou
-    ganhou
-    return true
+def escolhe_palavra_secreta_menor_custo_memoria
+  #primeira linha do arquivo tem a quantidade de palavras
+  avisa_escolhendo_palavra_secreta
+  texto = File.new("dicionario.txt")
+  qtd_palavra = texto.gets.to_i
+  num_escolhido = rand(qtd_palavra)
+  for i in 1...(num_escolhido-1)
+    texto.gets
   end
-  false
+  palavra_secreta = texto.gets.strip.downcase
+  texto.close
+  avisa_palavra_secreta_escolhida palavra_secreta
+  palavra_secreta
 end
 
-def verifica_letra(palavra, letra)
-  total_encontrado = palavra.count letra
-  if total_encontrado > 0
-    puts "Letra encontrada #{total_encontrado} vezes"
-  else
-    puts "Letra não encontrada!"
+def palavra_mascarada palavra_secreta, chutes
+  mascara = ""
+  for letra in palavra_secreta.chars
+    if chutes.include? letra
+      mascara << letra
+    else
+      mascara << "_"
+    end
   end
+  return mascara
 end
 
-def nao_quer_jogar?
-  puts "Deseja jogar novamente? (S/N)"
-  quero_jogar = gets.strip
-  quero_jogar.upcase == "N"
+def pede_um_chute_valido chutes, erros, limite_de_tentativas, mascara
+  cabecalho_tentativas chutes, erros, limite_de_tentativas, mascara
+  loop do
+    chute = pede_um_chute
+    if chutes.include? chute
+      avisa_chute_efetuado chute
+    else
+      return chute
+    end
+  end
 end
 
 def joga(nome)
@@ -100,16 +63,13 @@ def joga(nome)
 
   while erros < limite_de_tentativas
     #jogo
-    chute = pede_um_chute chutes, erros, limite_de_tentativas
-    if chutes.include? chute
-      puts "Você já deu esse chute"
-      next
-    end
+    mascara = palavra_mascarada palavra_secreta, chutes
+    chute = pede_um_chute_valido chutes, erros, limite_de_tentativas, mascara
     chutes << chute
 
     chutou_uma_letra = chute.size == 1
     if chutou_uma_letra
-      verifica_letra palavra_secreta, chute[0]
+      erros += verifica_letra palavra_secreta, chute[0]
     else
       if verifica_se_acertou palavra_secreta, chute
         pontos_ate_agora += 100
@@ -117,17 +77,25 @@ def joga(nome)
       end
       pontos_ate_agora -= 30
       errou
+      erros += 1
     end
-    erros += 1;
   end
 
-  puts "Você ganhou #{pontos_ate_agora} pontos."
+  avisa_pontos_ate_agora pontos_ate_agora
+  pontos_ate_agora
 end
 
-nome = da_boas_vindas
+def jogo_da_forca
+  nome = da_boas_vindas
+  pontos_totais = 0
+  avisa_campeao_atual le_rank
 
-
-loop do
-  joga nome
-  break if nao_quer_jogar?
+  loop do
+    pontos_totais += joga nome
+    avisa_pontos_totais pontos_totais
+    if le_rank[1].to_i < pontos_totais
+      salva_rank nome, pontos_totais
+    end
+    break if nao_quer_jogar?
+  end
 end
