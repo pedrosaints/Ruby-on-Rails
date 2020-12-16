@@ -31,3 +31,8 @@ def pede_movimento
   movimento = gets.strip.upcase
   movimento
 end
+
+def game_over
+  puts "\n\n\n"
+  puts "Game Over"
+end
