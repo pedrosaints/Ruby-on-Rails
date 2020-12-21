@@ -1,6 +1,15 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
-  get "produtos", to: "produtos#index"
+  # new product
+  # post "produtos", to: "produtos#create"
+  # get "produtos/new",to: "produtos#new"
 
+  # delete product
+  # delete "produtos/:id/remover", to: "produtos#destroy", as: :produto
+
+  get "produtos/busca", to: "produtos#busca", as: :busca_produto
+  resources :produtos, only: [:new, :create, :destroy]
+
+  # root
+  root to: "produtos#index"
 end

@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="pt">
-  <body>
-    <table>
+<table class="table table-bordered table-hover">
       <thead>
         <tr>
           <td>Nome</td>
           <td>Descrição</td>
           <td>Preço</td>
           <td>Quantidade</td>
+          <td colspan="1">
         </tr>
       </thead>
       <tbody>
@@ -17,17 +15,22 @@
             <td><%= produto.descricao %></td>
             <td><%= produto.preco %></td>
             <td><%= produto.quantidade %></td>
+            <td><%= button_to "Remover", produto, method: :delete,
+                              class:"btn btn-danger",
+                              data: {confirm: "Tem certeza que deseja remover o
+            produto #{produto.nome}?"} %></td>
           </tr>
         <% end %>
       </tbody>
     </table>
 
-
-    <h3>Produto com desconto</h3>
-    <table>
+<div class="alert alert-success" role="alert">
+      <h3 class="alert-heading">Produto com desconto</h3>
+    </div>
+<table class="table table-bordered table-hover">
       <thead>
         <tr>
-          <td>Nome<td/>
+          <td>Nome</td>
           <td>Descrição</td>
           <td>Preço</td>
           <td>Quantidade</td>
@@ -44,6 +47,3 @@
         <% end %>
       </tbody>
     </table>
-
-  </body>
-</html>
