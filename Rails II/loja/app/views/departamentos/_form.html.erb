@@ -4,9 +4,9 @@
       <h2><%= pluralize(departamento.errors.count, "error") %> prohibited this departamento from being saved:</h2>
 
       <ul>
-        <% departamento.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
+      <% departamento.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
       </ul>
     </div>
   <% end %>

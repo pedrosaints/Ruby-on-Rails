@@ -10,6 +10,7 @@ class DepartamentosController < ApplicationController
   # GET /departamentos/1
   # GET /departamentos/1.json
   def show
+    @produtos_por_departamento = Produto.where("departamento_id = ?", params[:id])
   end
 
   # GET /departamentos/new
@@ -67,7 +68,7 @@ class DepartamentosController < ApplicationController
       @departamento = Departamento.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
+    # Never trust parameters from the scary internet, only allow the white list through.
     def departamento_params
       params.require(:departamento).permit(:nome)
     end
